@@ -1,3 +1,5 @@
+let s:filename=expand('<sfile>:p:h')
+
 function! s:StartWith(string, substring)
     if strlen(a:string) < strlen(a:substring)
         return 0
@@ -8,6 +10,15 @@ function! s:StartWith(string, substring)
     endif
 endfunction
 
+function! s:StartWithAnyone(string, list)
+    for l:l in a:list
+        if s:StartWith(a:string, l:l)
+            return 1
+        endif
+    endfor
+    return 0
+endfunction
+
 
 " function! TESTFUNC(channel)
 "     " echom("Hello before 2000ms @". strftime('%T'))
@@ -16,36 +27,39 @@ endfunction
 "     echo ch_read(a:channel)
 " endfunction
 
-" function! TESTWRAPPER()
-"     " let g:Hello_codes = ['echom 1', 'echom 2', 'if 0', 'echom 3', 'elseif 0', 'echom 4', 'else', 'if 1', 'echom 6', 'endif', 'echom 5', 'endif']
-"     " let g:Hello_index = 0
-"     " call job_start("echo 'g:Hello'", {'close_cb': 'AsyncFuncRun'})
-"     let g:test_loop_codes = ['let g:index = 0', 'LABEL FIRST', 'if g:index < 4', 'echom strftime("%T") . g:index', 'let g:index = g:index + 1', 'sleep 2s', 'GOTO FIRST', 'endif']
-"     let g:test_loop_index = 0
-"     call job_start("echo 'g:test_loop'", {'close_cb': 'AsyncFuncRun'})
-" endfunction
+function! TESTWRAPPER()
+    " let g:Hello_codes = ['echom 1', 'echom 2', 'if 0', 'echom 3', 'elseif 0', 'echom 4', 'else', 'if 1', 'echom 6', 'endif', 'echom 5', 'endif']
+    " let g:Hello_index = 0
+    " call job_start("echo 'g:Hello'", {'close_cb': 'AsyncFuncRun'})
+    let g:test_loop_codes = ['let g:index = 0', 'LABEL FIRST', 'if g:index < 4', 'echom strftime("%T") . g:index', 'let g:index = g:index + 1', 'sleep 200ms', 'GOTO FIRST', 'endif']
+    let g:test_loop_index = 0
+    call job_start("echo 'g:test_loop'", {'close_cb': 'AsyncFuncRun'})
+endfunction
 
 " let g:test = 0
+
+let s:VaildCommand = ['let ', 'echo ', 'echom ', 'execute ', 'call ', 'unlet ', 'map', 'umap', 'imap', 'nmap', 'vmap', 'inoremap ', 'nnoremap ', 'vnoremap ', 'autocmd ', 'Plug ', 'au ', 'set ', 'filetype ', 'syntax ']
 
 function! AsyncFuncRun(channel)
     " let g:test = g:test + 1
     " echom strftime('%T') . string(a:channel)
     " echom ch_status(a:channel, {'part': 'out'})
-    if ch_status(a:channel, {'part': 'out'}) == 'buffered'
+    if ch_status(a:channel, {'part': 'out'}) ==# 'buffered'
         " echom a:channel
         let l:name = ch_read(a:channel)[1:-2]
         " echom l:name
+        " echom ch_read(a:channel)
     endif
     if !exists('l:name')
-        if exists('g:ASYNCVIM_JOB_FOR_SLEEP')
-            let l:name = g:ASYNCVIM_JOB_FOR_SLEEP
-            unlet g:ASYNCVIM_JOB_FOR_SLEEP
-        else
-            return
-        endif
+        " if exists('g:ASYNCVIM_JOB_FOR_SLEEP')
+        "     let l:name = g:ASYNCVIM_JOB_FOR_SLEEP
+        "     unlet g:ASYNCVIM_JOB_FOR_SLEEP
+        " else
+        return
+        " endif
     endif
     " let g:test = g:test + 1
-    " if g:test > 20
+    " if g:test > 30
     "     return
     " endif
     let l:codes = eval(l:name . '_codes')
@@ -58,7 +72,13 @@ function! AsyncFuncRun(channel)
     " echom string(a:channel) . ': ' . l:codes[l:index]
     " let g:Hello_index = g:Hello_index + 1
     let l:code = l:codes[l:index]
-    if s:StartWith(l:code, 'let ') || s:StartWith(l:code, 'echo') || s:StartWith(l:code, 'execute') || s:StartWith(l:code, 'call')
+
+    if s:StartWithAnyone(l:code, s:VaildCommand)
+        " echom l:code
+        " echom 'JOB_START: ' . l:code . "' @ " . strftime('%T')
+        " if s:StartWith(l:code, 'call')
+        "     echom 'Send Code: ' . g:tasks[g:taskprocess]
+        " endif
         execute l:code
         execute 'let '. l:name . '_index = ' . l:index . ' + 1'
     elseif s:StartWith(l:code, 'if')
@@ -110,8 +130,9 @@ function! AsyncFuncRun(channel)
             execute 'let '. l:name . '_index = ' . l:index . ' + 1'
         else
             " echom string(a:channel) . ' JOB_START: ' . l:code
-            let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
-            call job_start('sleep 0.05s', {'close_cb': 'AsyncFuncRun'})
+            " let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
+            " echom 'wait for :' . l:code[5:] . ' @ ' . strftime("%T")
+            call job_start(s:filename . '/sleep 0.05s "' . l:name . '"', {'close_cb': 'AsyncFuncRun'})
             return
         endif
     elseif s:StartWith(l:code, 'LABEL ')
@@ -129,11 +150,14 @@ function! AsyncFuncRun(channel)
         execute 'let '. l:name . '_index = ' . l:index . ' + 1'
         " echom string(a:channel) . ' JOB_START: ' . l:code . "&& echo '" . l:name . "' @ " . strftime('%T')
         " call job_start("sleep 2s & echo 'g:test_loop'", {'close_cb': 'AsyncFuncRun'})
-        let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
-        call job_start(l:code, {'close_cb': 'AsyncFuncRun'})
+        " let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
+        " echom s:filename
+        call job_start(s:filename . '/sleep ' . l:code[6:] . ' "' . l:name . '"', {'close_cb': 'AsyncFuncRun'})
         " call job_start(l:code . " && echo '" . l:name . "'", {'close_cb': 'AsyncFuncRun'})
         return
+    elseif s:StartWith(l:code, 'return')
+        " echom 'excution finishs @ ' . strftime('%T')
+        return
     endif
-    " echom "hahah"
     call job_start("echo '". l:name . "'", {'close_cb': 'AsyncFuncRun'})
 endfunction
