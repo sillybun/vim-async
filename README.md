@@ -24,9 +24,11 @@ Use your plugin manager of choice.
 
 - [vim-plug](https://github.com/junegunn/vim-plug)
   - Add `Plug 'sillybun/vim-async', {'do': './install.sh'}` to .vimrc
+  - Add `Plug 'sillybun/zytutil'` to .vimrc
   - Run `:PlugInstall`
 
 - [Vundle](https://github.com/gmarik/vundle)
   - Add `Bundle 'https://github.com/sillybun/vim-async'` to .vimrc
+  - Add `Bundle 'sillybun/zytutil'` to .vimrc
   - Run `:BundleInstall`
   - And change to the plugin directory and run in shell `./install.sh`
