@@ -8,8 +8,8 @@ function! TESTWRAPPER()
 endfunction
 
 function! AsyncCodeRun(code, name)
-    let a:name = substitute(a:name, ' ', '', 'g')
-    execute 'let g:' . a:name . 'codes = a:code'
-    execute 'let g:' . a:name . 'index = 0'
-    call job_start("echo 'g:" . a:name . "'", {'close_cb': 'async#AsyncFuncRun'})
+    let l:name = substitute(a:name, ' ', '', 'g')
+    execute 'let g:' . l:name . '_codes = a:code'
+    execute 'let g:' . l:name . '_index = 0'
+    call job_start("echo 'g:" . l:name . "'", {'close_cb': 'async#AsyncFuncRun'})
 endfunction

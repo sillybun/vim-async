@@ -2,7 +2,7 @@ let s:VaildCommand = ['let ', 'echo ', 'echom ', 'execute ', 'call ', 'unlet ', 
 
 let s:filename=expand('<sfile>:p:h')
 
-function! async#AsyncFuncRun(channel)
+function! async#AsyncFuncRun(channel) abort
     " let g:test = g:test + 1
     " echom strftime('%T') . string(a:channel)
     " echom ch_status(a:channel, {'part': 'out'})
