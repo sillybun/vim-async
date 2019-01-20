@@ -32,3 +32,11 @@ Use your plugin manager of choice.
   - Add `Bundle 'sillybun/zytutil'` to .vimrc
   - Run `:BundleInstall`
   - And change to the plugin directory and run in shell `./install.sh`
+
+## Feature
+
+- Support Basic Expression: `let, set, echo[m], call, execute, ...`
+- Support if-statement: if/elseif/else/endif
+- Support `wait [condition]`
+- Support `sleep [time][s|ms]`
+- Support `LABEL [name]`, `GOTO [name]`
