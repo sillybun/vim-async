@@ -26,6 +26,7 @@ function! async#AsyncFuncRun(channel) abort
     " endif
     let l:codes = eval(l:name . '_codes')
     let l:index = eval(l:name . '_index')
+    let l:wait_time = eval(l:name . '_wait_time')
     " echom string(l:codes)
     " echom string(l:index)
     if l:index == len(l:codes)
@@ -90,11 +91,15 @@ function! async#AsyncFuncRun(channel) abort
     elseif zyt#str#match#StartWith(l:code, 'wait')
         if eval(l:code[5:])
             execute 'let '. l:name . '_index = ' . l:index . ' + 1'
+            execute 'let '. l:name . '_wait_time = 0'
         else
             " echom string(a:channel) . ' JOB_START: ' . l:code
             " let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
             " echom 'wait for :' . l:code[5:] . ' @ ' . strftime("%T")
-            call job_start(s:filename . '/sleep 0.05s "' . l:name . '"', {'close_cb': 'async#AsyncFuncRun'})
+            let l:sleep_time = 0.05 + 0.01 * l:wait_time
+            echom 'sleep for' . string(l:sleep_time) . 's'
+            execute 'let '. l:name . '_wait_time = ' . l:wait_time . ' + 1'
+            call job_start(s:filename . '/sleep ' . string(l:sleep_time) . 's "' . l:name . '"', {'close_cb': 'async#AsyncFuncRun'})
             return
         endif
     elseif zyt#str#match#StartWith(l:code, 'LABEL ')

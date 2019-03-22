@@ -11,5 +11,6 @@ function! AsyncCodeRun(code, name)
     let l:name = substitute(a:name, ' ', '', 'g')
     execute 'let g:' . l:name . '_codes = a:code'
     execute 'let g:' . l:name . '_index = 0'
+    execute 'let g:' . l:name . '_wait_time = 0'
     call job_start("echo 'g:" . l:name . "'", {'close_cb': 'async#AsyncFuncRun'})
 endfunction
