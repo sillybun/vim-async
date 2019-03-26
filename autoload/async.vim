@@ -97,7 +97,7 @@ function! async#AsyncFuncRun(channel) abort
             " let g:ASYNCVIM_JOB_FOR_SLEEP = l:name
             " echom 'wait for :' . l:code[5:] . ' @ ' . strftime("%T")
             let l:sleep_time = 0.05 + 0.01 * l:wait_time
-            echom 'sleep for' . string(l:sleep_time) . 's'
+            " echom 'sleep for' . string(l:sleep_time) . 's'
             execute 'let '. l:name . '_wait_time = ' . l:wait_time . ' + 1'
             call job_start(s:filename . '/sleep ' . string(l:sleep_time) . 's "' . l:name . '"', {'close_cb': 'async#AsyncFuncRun'})
             return
