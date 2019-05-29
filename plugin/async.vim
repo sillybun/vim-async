@@ -1,3 +1,7 @@
+if !exists('g:has_async_engine')
+    let g:has_async_engine = 1
+endif
+
 function! TESTWRAPPER()
     " let g:Hello_codes = ['echom 1', 'echom 2', 'if 0', 'echom 3', 'elseif 0', 'echom 4', 'else', 'if 1', 'echom 6', 'endif', 'echom 5', 'endif']
     " let g:Hello_index = 0
