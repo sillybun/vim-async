@@ -27,7 +27,6 @@ function! async#AsyncFuncRun(channel) abort
     let l:codes = eval(l:name . '_codes')
     let l:index = eval(l:name . '_index')
     let l:wait_time = eval(l:name . '_wait_time')
-    " echom string(l:codes)
     " echom string(l:index)
     if l:index == len(l:codes)
         return
